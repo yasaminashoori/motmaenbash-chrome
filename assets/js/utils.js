@@ -122,3 +122,48 @@ export function getSecurityMessage(result) {
     };
   }
 }
+
+/**
+ * Phishing attempt detection
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isPhishingURL(url) {
+  if (!url || typeof url !== "string") return false;
+  const phishingPatterns = [/login/i, /secure/i, /verify/i, /bank/i];
+  return phishingPatterns.some((pattern) => pattern.test(url));
+}
+
+/**
+ * navigation event and warning if suspicious
+ * @param {string} url
+ * @param {function} sendWarning
+ */
+export function handleNavigation(url, sendWarning) {
+  if (isPhishingURL(url)) {
+    sendWarning(
+      getSecurityMessage({
+        secure: false,
+        type: 1,
+        level: 2,
+      })
+    );
+  }
+}
+
+/**
+ * Check URL: valid secure shaparak gateway
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isSecureGateway(url) {
+  try {
+    const parsedUrl = new URL(url);
+    return (
+      parsedUrl.protocol === "https:" &&
+      /\.shaparak\.ir$/i.test(parsedUrl.hostname)
+    );
+  } catch {
+    return false;
+  }
+}
